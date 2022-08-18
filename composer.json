@@ -1,0 +1,22 @@
+{
+    "name": "acdh-oeaw/arche-openaire",
+    "description": "OpenAIRE usage tracking plugin for ARCHE",
+    "keywords": [],
+    "homepage": "https://github.com/acdh-oeaw/arche-openaire",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mateusz Żółtak",
+            "email": "mzoltak@oeaw.ac.at"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "^7.4",
+        "acdh-oeaw/easyrdf": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "acdhOeaw\\": "src/acdhOeaw"
+        }
+    }
+}
