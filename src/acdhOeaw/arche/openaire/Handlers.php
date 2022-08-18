@@ -63,7 +63,7 @@ class Handlers {
         $url = RC::getBaseUrl() . $id . ($download ? '' : '/metadata');
 
         // https://openaire.github.io/usage-statistics-guidelines/service-specification/service-spec/
-        $param    = http_build_query([
+        $param    = [
             'rec'         => 1,
             'idsite'      => $cfg->id,
             'action_name' => $title,
@@ -71,7 +71,7 @@ class Handlers {
             'urlref'      => $_SERVER['HTTP_REFERER'] ?? '',
             'cvar'        => $pid,
             'token_auth'  => $cfg->authToken,
-        ]);
+        ];
         if ($download) {
             $param['download'] = $url;
         }
@@ -83,6 +83,7 @@ class Handlers {
         if ($cfg->trackUserAgent) {
             $param['ua'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
         }
+        $param = http_build_query($param);
         $headers  = ['Content-Type' => 'application/x-www-form-urlencoded'];
         $request  = new Request('post', $cfg->url, $headers, $param);
         $client   = new Client(['http_errors' => false]);
