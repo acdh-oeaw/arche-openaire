@@ -60,6 +60,13 @@ class Handlers {
             $titles[$i->getLang()] = $i->getValue();
         }
         $title = $titles['en'] ?? $titles['de'] ?? reset($titles);
+        $ip = '';
+        if ($cfg->trackIp) {
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+            $ip = explode(',', $ip);
+            $ip = trim(array_pop($ip));
+        }
+        $ua = $cfg->trackUserAgent ? $_SERVER['HTTP_USER_AGENT'] : '';
 
         // https://openaire.github.io/usage-statistics-guidelines/service-specification/service-spec/
         $param = http_build_query([
@@ -71,23 +78,20 @@ class Handlers {
             'download'    => $download ?: RC::getBaseUrl() . $id,
             'cvar'        => $pid,
             'token_auth'  => $cfg->authToken,
-            'ua'          => $_SERVER['HTTP_USER_AGENT'] ?? '',
-            'cip'         => $cfg->trackIp ? $_SERVER['REMOTE_ADDR'] ?? '' : '',
-            'timestamp'   => '',
-            'idVisit'     => '',
+            'ua'          => $ua,
+            'cip'         => $ip,
         ]);
-        RC::$log->debug("OpenAIRE tracked with $cfg->url?$param");
-//        $headers  = ['Content-Type' => 'application/x-www-form-urlencoded'];
-//        $request  = new Request('post', $cfg->url, $headers, $param);
-//        $client   = new Client(['http_errors' => false]);
-//        $response = $client->send($request);
-//
-//        $status = $response->getStatusCode();
-//        $msg    = "OpenAIRE tracked with $cfg->url?$param";
-//        if ($status >= 200 && $status < 300) {
-//            RC::$log->debug($msg);
-//        } else {
-//            RC::$log->error($msg);
-//        }
+        $headers  = ['Content-Type' => 'application/x-www-form-urlencoded'];
+        $request  = new Request('post', $cfg->url, $headers, $param);
+        $client   = new Client(['http_errors' => false]);
+        $response = $client->send($request);
+
+        $status = $response->getStatusCode();
+        $msg    = "OpenAIRE tracked with $cfg->url?$param";
+        if ($status >= 200 && $status < 300) {
+            RC::$log->debug($msg);
+        } else {
+            RC::$log->error($msg);
+        }
     }
 }
