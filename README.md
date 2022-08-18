@@ -25,6 +25,18 @@ An [arche-core](https://github.com/acdh-oeaw/arche-core) plugin implementing [us
     # may contain {baseUrl} and {id} placeholders which are substituted with
     # arche repository base URL and internal repository resource id, respectively
     urlref: "{baseUrl}../browser/oeaw_detail/{id}"
+    # If the PID reported to the OpenAIRE tracker trough the cvar parameter
+    # is not the PID of the resource, you should specify an SQL query fetching it.
+    # Otherwise skip this property or set it to an empty value.
+    pidQuery: |
+      SELECT m.value 
+      FROM 
+        metadata m 
+        JOIN relations r ON r.target_id = m.id AND r.id = ? AND r.property = ?
+    # pidQuery parameters. Use "{id}" to pass repository resource id
+    pidQueryParam:
+    - "{id}"
+    - https://vocabs.acdh.oeaw.ac.at/schema#isPartOf
   rest:
     handlers:
       methods:

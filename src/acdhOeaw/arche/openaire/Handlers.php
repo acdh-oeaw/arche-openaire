@@ -51,7 +51,7 @@ class Handlers {
     static private function track(int $id, Resource $meta, bool $download): void {
         $cfg    = RC::$config->openaire;
         $schema = RC::$config->schema;
-        $pid    = (string) $meta->get($schema->pid);
+        $pid    = self::getPid($id, $meta);
         if (empty($pid)) {
             return;
         }
@@ -60,7 +60,7 @@ class Handlers {
             $titles[$i->getLang()] = $i->getValue();
         }
         $title = $titles['en'] ?? $titles['de'] ?? reset($titles);
-        $ip = '';
+        $ip    = '';
         if ($cfg->trackIp) {
             $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
             $ip = explode(',', $ip);
@@ -69,7 +69,7 @@ class Handlers {
         $ua = $cfg->trackUserAgent ? $_SERVER['HTTP_USER_AGENT'] ?? '' : '';
 
         // https://openaire.github.io/usage-statistics-guidelines/service-specification/service-spec/
-        $param = http_build_query([
+        $param    = http_build_query([
             'rec'         => 1,
             'idsite'      => $cfg->id,
             'action_name' => $title,
@@ -93,5 +93,17 @@ class Handlers {
         } else {
             RC::$log->error($msg);
         }
+    }
+
+    static private function getPid(int $id, Resource $meta): string {
+        $query = RC::$config->openaire->pidQuery ?? '';
+        if (empty($query)) {
+            return (string) $meta->get(RC::$config->schema->pid);
+        }
+        $param = (array) RC::$config->openaire->pidQueryParam ?? [];
+        $param = array_map(fn($x) => $x === '{id}' ? $id : $x, $param);
+        $query = RC::$pdo->prepare($query);
+        $query->execute($param);
+        return (string) $query->fetchColumn();
     }
 }
