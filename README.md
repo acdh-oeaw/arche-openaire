@@ -32,8 +32,8 @@ An [arche-core](https://github.com/acdh-oeaw/arche-core) plugin implementing [us
         methods:
           get:
           - type: function
-            function: \acdhOeaw\arche\openaire\onGet
+            function: \acdhOeaw\arche\openaire\Handlers\onGet
           getMetadata:
           - type: function
-            function: \acdhOeaw\arche\openaire\onGetMetadata
+            function: \acdhOeaw\arche\openaire\Handlers\onGetMetadata
     ```
