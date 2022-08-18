@@ -66,7 +66,7 @@ class Handlers {
             $ip = explode(',', $ip);
             $ip = trim(array_pop($ip));
         }
-        $ua = $cfg->trackUserAgent ? $_SERVER['HTTP_USER_AGENT'] : '';
+        $ua = $cfg->trackUserAgent ? $_SERVER['HTTP_USER_AGENT'] ?? '' : '';
 
         // https://openaire.github.io/usage-statistics-guidelines/service-specification/service-spec/
         $param = http_build_query([
