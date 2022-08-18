@@ -21,10 +21,6 @@ An [arche-core](https://github.com/acdh-oeaw/arche-core) plugin implementing [us
     trackIp: false
     # should client's user agent header be tracked? (true/false)
     trackUserAgent: true
-    # template for the urlref tracking parameter
-    # may contain {baseUrl} and {id} placeholders which are substituted with
-    # arche repository base URL and internal repository resource id, respectively
-    urlref: "{baseUrl}../browser/oeaw_detail/{id}"
     # If the PID reported to the OpenAIRE tracker trough the cvar parameter
     # is not the PID of the resource, you should specify an SQL query fetching it.
     # Otherwise skip this property or set it to an empty value.

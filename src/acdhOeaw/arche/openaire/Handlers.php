@@ -60,27 +60,29 @@ class Handlers {
             $titles[$i->getLang()] = $i->getValue();
         }
         $title = $titles['en'] ?? $titles['de'] ?? reset($titles);
-        $ip    = '';
-        if ($cfg->trackIp) {
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
-            $ip = explode(',', $ip);
-            $ip = trim(array_pop($ip));
-        }
-        $ua = $cfg->trackUserAgent ? $_SERVER['HTTP_USER_AGENT'] ?? '' : '';
+        $url = RC::getBaseUrl() . $id . ($download ? '' : '/metadata');
 
         // https://openaire.github.io/usage-statistics-guidelines/service-specification/service-spec/
         $param    = http_build_query([
             'rec'         => 1,
             'idsite'      => $cfg->id,
             'action_name' => $title,
-            'url'         => $download ? '' : RC::getBaseUrl() . $id . '/metadata',
-            'urlref'      => str_replace(['{id}', '{baseUrl}'], [$id, RC::getBaseUrl()], $cfg->urlref),
-            'download'    => $download ?: RC::getBaseUrl() . $id,
+            'url'         => $url,
+            'urlref'      => $_SERVER['HTTP_REFERER'] ?? '',
             'cvar'        => $pid,
             'token_auth'  => $cfg->authToken,
-            'ua'          => $ua,
-            'cip'         => $ip,
         ]);
+        if ($download) {
+            $param['download'] = $url;
+        }
+        if ($cfg->trackIp) {
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+            $ip = explode(',', $ip);
+            $param['ip'] = trim(array_pop($ip));
+        }
+        if ($cfg->trackUserAgent) {
+            $param['ua'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        }
         $headers  = ['Content-Type' => 'application/x-www-form-urlencoded'];
         $request  = new Request('post', $cfg->url, $headers, $param);
         $client   = new Client(['http_errors' => false]);
