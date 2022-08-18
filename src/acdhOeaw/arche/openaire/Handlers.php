@@ -43,7 +43,7 @@ class Handlers {
         return $meta;
     }
 
-    static public function onMetadataGet(int $id, Resource $meta, ?string $path): Resource {
+    static public function onGetMetadata(int $id, Resource $meta, ?string $path): Resource {
         self::track($id, $meta, true);
         return $meta;
     }
@@ -62,7 +62,7 @@ class Handlers {
         $title = $titles['en'] ?? $titles['de'] ?? reset($titles);
 
         // https://openaire.github.io/usage-statistics-guidelines/service-specification/service-spec/
-        $param    = http_build_query([
+        $param = http_build_query([
             'rec'         => 1,
             'idsite'      => $cfg->id,
             'action_name' => $title,
