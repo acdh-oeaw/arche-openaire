@@ -69,7 +69,7 @@ class Handlers {
             'action_name' => $title,
             'url'         => $url,
             'urlref'      => $_SERVER['HTTP_REFERER'] ?? '',
-            'cvar'        => $pid,
+            'cvar'        => json_encode(['1'=>["PID", $pid]],  JSON_UNESCAPED_SLASHES),
             'token_auth'  => $cfg->authToken,
         ];
         if ($download) {
