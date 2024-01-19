@@ -28,6 +28,7 @@ namespace acdhOeaw\arche\openaire;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Exception\TransferException;
 use EasyRdf\Resource;
 use acdhOeaw\arche\core\RestController as RC;
 
@@ -37,6 +38,8 @@ use acdhOeaw\arche\core\RestController as RC;
  * @author zozlak
  */
 class Handlers {
+
+    const DEFAULT_TIMEOUT = 1;
 
     static public function onGet(int $id, Resource $meta, ?string $path): Resource {
         self::track($id, $meta, false);
@@ -60,41 +63,47 @@ class Handlers {
             $titles[$i->getLang()] = $i->getValue();
         }
         $title = $titles['en'] ?? $titles['de'] ?? reset($titles);
-        $url = RC::getBaseUrl() . $id . ($download ? '' : '/metadata');
+        $url   = RC::getBaseUrl() . $id . ($download ? '' : '/metadata');
 
         // https://openaire.github.io/usage-statistics-guidelines/service-specification/service-spec/
-        $param    = [
+        $param = [
             'rec'         => 1,
             'idsite'      => $cfg->id,
             'action_name' => $title,
             'url'         => $url,
             'urlref'      => $_SERVER['HTTP_REFERER'] ?? '',
-            'cvar'        => json_encode(['1'=>["PID", $pid]],  JSON_UNESCAPED_SLASHES),
+            'cvar'        => json_encode(['1' => ["PID", $pid]], JSON_UNESCAPED_SLASHES),
             'token_auth'  => $cfg->authToken,
         ];
         if ($download) {
             $param['download'] = $url;
         }
         if ($cfg->trackIp) {
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
-            $ip = explode(',', $ip);
+            $ip          = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+            $ip          = explode(',', $ip);
             $param['ip'] = trim(array_pop($ip));
         }
         if ($cfg->trackUserAgent) {
             $param['ua'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
         }
-        $param = http_build_query($param);
-        $headers  = ['Content-Type' => 'application/x-www-form-urlencoded'];
-        $request  = new Request('post', $cfg->url, $headers, $param);
-        $client   = new Client(['http_errors' => false]);
-        $response = $client->send($request);
+        $param   = http_build_query($param);
+        $headers = ['Content-Type' => 'application/x-www-form-urlencoded'];
+        $request = new Request('post', $cfg->url, $headers, $param);
+        $client  = new Client([
+            'http_errors' => false,
+            'timeout'     => $cfg->timeout ?? self::DEFAULT_TIMEOUT,
+        ]);
+        try {
+            $response = $client->send($request);
 
-        $status = $response->getStatusCode();
-        $msg    = "OpenAIRE tracked with $cfg->url?$param";
-        if ($status >= 200 && $status < 300) {
-            RC::$log->debug($msg);
-        } else {
-            RC::$log->error($msg);
+            $status = $response->getStatusCode();
+            if ($status >= 200 && $status < 300) {
+                RC::$log->debug("OpenAIRE tracked with " . $request->getUri());
+            } else {
+                RC::$log->error("OpenAIRE tracking failed with response code $status (" . $request->getUri() . ")");
+            }
+        } catch (TransferException $e) {
+            RC::$log->error("OpenAIRE tracking failed with " . $e->getMessage() . " (" . $request->getUri() . ")");
         }
     }
 
