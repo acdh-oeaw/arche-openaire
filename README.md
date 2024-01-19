@@ -33,6 +33,8 @@ An [arche-core](https://github.com/acdh-oeaw/arche-core) plugin implementing [us
     pidQueryParam:
     - "{id}"
     - https://vocabs.acdh.oeaw.ac.at/schema#isPartOf
+    # Tracking API connection timeout
+    timeout: 1.0
   rest:
     handlers:
       methods:
