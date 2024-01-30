@@ -29,7 +29,9 @@ namespace acdhOeaw\arche\openaire;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\TransferException;
-use EasyRdf\Resource;
+use rdfInterface\DatasetNodeInterface;
+use rdfInterface\LiteralInterface;
+use termTemplates\PredicateTemplate as PT;
 use acdhOeaw\arche\core\RestController as RC;
 
 /**
@@ -41,17 +43,17 @@ class Handlers {
 
     const DEFAULT_TIMEOUT = 1;
 
-    static public function onGet(int $id, Resource $meta, ?string $path): Resource {
+    static public function onGet(int $id, DatasetNodeInterface $meta, ?string $path): DatasetNodeInterface {
         self::track($id, $meta, false);
         return $meta;
     }
 
-    static public function onGetMetadata(int $id, Resource $meta, ?string $path): Resource {
+    static public function onGetMetadata(int $id, DatasetNodeInterface $meta, ?string $path): DatasetNodeInterface {
         self::track($id, $meta, true);
         return $meta;
     }
 
-    static private function track(int $id, Resource $meta, bool $download): void {
+    static private function track(int $id, DatasetNodeInterface $meta, bool $download): void {
         $cfg    = RC::$config->openaire;
         if (empty($cfg->authToken ?? '')) {
             return;
@@ -62,8 +64,9 @@ class Handlers {
             return;
         }
         $titles = [];
-        foreach ($meta->allLiterals($schema->label) as $i) {
-            $titles[$i->getLang()] = $i->getValue();
+        foreach ($meta->listObjects(new PT($schema->label)) as $i) {
+            $lang = $i instanceof LiteralInterface ? $i->getLang() : '';
+            $titles[$lang] = $i->getValue();
         }
         $title = $titles['en'] ?? $titles['de'] ?? reset($titles);
         $url   = RC::getBaseUrl() . $id . ($download ? '' : '/metadata');
@@ -110,10 +113,10 @@ class Handlers {
         }
     }
 
-    static private function getPid(int $id, Resource $meta): string {
+    static private function getPid(int $id, DatasetNodeInterface $meta): string {
         $query = RC::$config->openaire->pidQuery ?? '';
         if (empty($query)) {
-            return (string) $meta->get(RC::$config->schema->pid);
+            return (string) $meta->getObject(new PT(RC::$config->schema->pid));
         }
         $param = (array) RC::$config->openaire->pidQueryParam ?? [];
         $param = array_map(fn($x) => $x === '{id}' ? $id : $x, $param);
