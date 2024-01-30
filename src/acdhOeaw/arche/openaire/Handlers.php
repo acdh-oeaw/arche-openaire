@@ -53,6 +53,9 @@ class Handlers {
 
     static private function track(int $id, Resource $meta, bool $download): void {
         $cfg    = RC::$config->openaire;
+        if (empty($cfg->authToken ?? '')) {
+            return;
+        }
         $schema = RC::$config->schema;
         $pid    = self::getPid($id, $meta);
         if (empty($pid)) {
