@@ -58,7 +58,7 @@ class Handlers {
         if (empty($cfg->authToken ?? '')) {
             return;
         }
-        $schema = RC::$config->schema;
+        $schema = RC::$schema;
         $pid    = self::getPid($id, $meta);
         if (empty($pid)) {
             return;
