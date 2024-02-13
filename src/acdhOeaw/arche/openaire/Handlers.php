@@ -118,7 +118,7 @@ class Handlers {
         if (empty($query)) {
             return (string) $meta->getObject(new PT(RC::$config->schema->pid));
         }
-        $param = (array) RC::$config->openaire->pidQueryParam ?? [];
+        $param = (array) (RC::$config->openaire->pidQueryParam ?? []);
         $param = array_map(fn($x) => $x === '{id}' ? $id : $x, $param);
         $query = RC::$pdo->prepare($query);
         $query->execute($param);

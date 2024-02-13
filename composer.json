@@ -12,14 +12,7 @@
     ],
     "require": {
         "guzzlehttp/guzzle": "^7.4",
-        "acdh-oeaw/arche-core": "dev-rdfinterface",
-        "sweetrdf/rdf-interface": "dev-master",
-        "sweetrdf/term-templates": "dev-dev",
-        "acdh-oeaw/arche-lib": "dev-rdfInterface",
-        "sweetrdf/rdf-helpers": "dev-dev",
-        "sweetrdf/quick-rdf": "dev-master",
-        "sweetrdf/simple-rdf": "dev-master",
-        "sweetrdf/quick-rdf-io": "dev-master"
+        "acdh-oeaw/arche-core": "^5"
     },
     "autoload": {
         "psr-4": {
