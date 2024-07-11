@@ -43,18 +43,21 @@ class Handlers {
 
     const DEFAULT_TIMEOUT = 1;
 
-    static public function onGet(int $id, DatasetNodeInterface $meta, ?string $path): DatasetNodeInterface {
+    static public function onGet(int $id, DatasetNodeInterface $meta,
+                                 ?string $path): DatasetNodeInterface {
         self::track($id, $meta, false);
         return $meta;
     }
 
-    static public function onGetMetadata(int $id, DatasetNodeInterface $meta, ?string $path): DatasetNodeInterface {
+    static public function onGetMetadata(int $id, DatasetNodeInterface $meta,
+                                         ?string $path): DatasetNodeInterface {
         self::track($id, $meta, true);
         return $meta;
     }
 
-    static private function track(int $id, DatasetNodeInterface $meta, bool $download): void {
-        $cfg    = RC::$config->openaire;
+    static private function track(int $id, DatasetNodeInterface $meta,
+                                  bool $download): void {
+        $cfg = RC::$config->openaire;
         if (empty($cfg->authToken ?? '')) {
             return;
         }
@@ -65,7 +68,7 @@ class Handlers {
         }
         $titles = [];
         foreach ($meta->listObjects(new PT($schema->label)) as $i) {
-            $lang = $i instanceof LiteralInterface ? $i->getLang() : '';
+            $lang          = $i instanceof LiteralInterface ? $i->getLang() : '';
             $titles[$lang] = $i->getValue();
         }
         $title = $titles['en'] ?? $titles['de'] ?? reset($titles);
@@ -85,9 +88,9 @@ class Handlers {
             $param['download'] = $url;
         }
         if ($cfg->trackIp) {
-            $ip          = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
-            $ip          = explode(',', $ip);
-            $param['ip'] = trim(array_pop($ip));
+            $ip           = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+            $ip           = explode(',', $ip);
+            $param['cip'] = trim(array_pop($ip));
         }
         if ($cfg->trackUserAgent) {
             $param['ua'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
