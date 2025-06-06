@@ -26,7 +26,7 @@
 
 namespace acdhOeaw\arche\openaire;
 
-use GuzzleHttp\Client;
+use zozlak\ProxyClient;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\TransferException;
 use rdfInterface\DatasetNodeInterface;
@@ -98,7 +98,7 @@ class Handlers {
         $param   = http_build_query($param);
         $headers = ['Content-Type' => 'application/x-www-form-urlencoded'];
         $request = new Request('post', $cfg->url, $headers, $param);
-        $client  = new Client([
+        $client  = ProxyClient::factory([
             'http_errors' => false,
             'timeout'     => $cfg->timeout ?? self::DEFAULT_TIMEOUT,
         ]);

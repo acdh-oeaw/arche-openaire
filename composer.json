@@ -12,7 +12,8 @@
     ],
     "require": {
         "guzzlehttp/guzzle": "^7.4",
-        "acdh-oeaw/arche-core": "^5"
+        "acdh-oeaw/arche-core": "^5",
+        "zozlak/guzzle-proxy-client": "^1.0"
     },
     "autoload": {
         "psr-4": {
