@@ -97,7 +97,7 @@ class Handlers {
         }
         $param   = http_build_query($param);
         $headers = ['Content-Type' => 'application/x-www-form-urlencoded'];
-        $request = new Request('post', $cfg->url, $headers, $param);
+        $request = new Request('POST', $cfg->url, $headers, $param);
         $client  = ProxyClient::factory([
             'http_errors' => false,
             'timeout'     => $cfg->timeout ?? self::DEFAULT_TIMEOUT,
