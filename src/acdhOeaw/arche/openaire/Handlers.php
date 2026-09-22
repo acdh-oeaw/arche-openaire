@@ -57,6 +57,7 @@ class Handlers {
 
     static private function track(int $id, DatasetNodeInterface $meta,
                                   bool $download): void {
+        /** @phpstan-ignore property.notFound */
         $cfg = RC::$config->openaire;
         if (empty($cfg->authToken ?? '')) {
             return;
@@ -68,7 +69,7 @@ class Handlers {
         }
         $titles = [];
         foreach ($meta->listObjects(new PT($schema->label)) as $i) {
-            $lang          = $i instanceof LiteralInterface ? $i->getLang() : '';
+            $lang          = (string) ($i instanceof LiteralInterface ? $i->getLang() : '');
             $titles[$lang] = $i->getValue();
         }
         $title = $titles['en'] ?? $titles['de'] ?? reset($titles);
